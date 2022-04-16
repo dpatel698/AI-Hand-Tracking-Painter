@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 def main():
     # Initialize mediapipe
     mpHands = mp.solutions.hands
-    hands = mpHands.Hands(max_num_hands=1, min_detection_confidence=0.7)
+    hands = mpHands.Hands(max_num_hands=2, min_detection_confidence=0.7)
     mpDraw = mp.solutions.drawing_utils
 
     # Load the gesture recognizer model
@@ -38,32 +38,16 @@ def main():
         # Process the hand results
         if result.multi_hand_landmarks:
             landmarks = []
-            for handslms in result.multi_hand_landmarks:
-                for lm in handslms.landmark:
+            for idx, hand in enumerate(result.multi_hand_landmarks):
+                for lm in hand.landmark:
                     lmx = int(lm.x * x)
                     lmy = int(lm.y * y)
                     print((lmx, lmy))
                     landmarks.append([lmx, lmy])
                 # Drawing landmarks on frames
-                mpDraw.draw_landmarks(frame, handslms,
+                mpDraw.draw_landmarks(frame, hand,
                                       mpHands.HAND_CONNECTIONS)
 
-        # Get second hand landmark prediction
-        resultS = hands.process(framergb)
-        className = ''
-
-        # Process the hand results
-        if resultS.multi_hand_landmarks:
-            landmarks = []
-            for handslms in resultS.multi_hand_landmarks:
-                for lm in handslms.landmark:
-                    # print(id, lm)
-                    lmx = int(lm.x * x)
-                    lmy = int(lm.y * y)
-                    landmarks.append([lmx, lmy])
-                # Drawing landmarks on frames
-                mpDraw.draw_landmarks(frame, handslms,
-                                      mpHands.HAND_CONNECTIONS)
         # Show the final output
         cv2.imshow("Output", frame)
         if cv2.waitKey(1) == ord('q'):
